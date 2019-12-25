@@ -1,0 +1,273 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+#include<stdlib.h>
+struct person
+{
+    char name [20];
+    char address[50];
+    long int mobile_no;
+    char mail[30];
+};
+void menu();
+void got();
+void start();
+void addrecord();
+void listrecord();
+void searchrecord();
+void modifyrecord();
+void deleterecord();
+int main()
+{
+    start();
+}
+void start()
+{
+    menu();
+}
+void menu()
+{
+    system("cls");
+    printf("\t********WELCOME TO MY PHONEBOOK********");
+    printf("\n\t\t\t MENU \n");
+    printf("\t1.Add_New\t2.List\t\t3.Search\t\n\t4.Modify\t5.Delete\t6.Exit");
+
+    switch(getch())
+    {
+        case '1':
+            addrecord();
+            break;
+        case '2':
+            listrecord();
+            break;
+        case '3':
+            searchrecord();
+            break;
+        case '4':
+            modifyrecord();
+            break;
+        case '5':
+            deleterecord();
+            break;
+        case '6':
+            exit(0);
+            break;
+        default:
+            system("cls");
+            printf("\nEnter 1 to 6 only");
+            printf("\nEnter any key");
+            getch();
+            menu();
+    }
+
+}
+void got(char*name)
+{
+    int i=0,j;
+    char c,ch;
+    do
+    {
+        c=getch();
+        if(c!=8&&c!=13)
+            {
+                *(name+i)=c;
+                putch(c);
+                i++;
+            }
+            if(c==8)
+                {
+                    if(i>0)
+                        {
+                            i--;
+                        }
+                        system("cls");
+                        for(j=0;j<i;j++)
+                        {
+                            ch=*(name+j);
+                            putch(ch);
+
+                        }
+                }
+    }
+    while(c!=13);
+    *(name+i)='\0';
+}
+void addrecord()
+{
+    system("cls");
+        FILE *f;
+        struct person p;
+        f=fopen("project","ab+");
+        printf("\nEnter name:");
+        got(p.name);
+        printf("\nEnter the address:");
+        got(p.address);
+        printf("\nEnter phone no.:");
+        scanf("%ld",&p.mobile_no);
+        printf("\nEnter e-mail:");
+        got(p.mail);
+        fwrite(&p,sizeof(p),1,f);
+        fflush(stdin);
+        printf("\nrecord saved");
+        fclose(f);
+        printf("\nEnter any key");
+        getch();
+        system("cls");
+        menu();
+}
+void listrecord()
+{
+    struct person p;
+    FILE *f;
+    f=fopen("project","rb");
+    if(f==NULL)
+    {
+        printf("\nfile opening error in listing :");
+        exit(1);
+    }
+    while(fread(&p,sizeof(p),1,f)==1)
+    {
+        printf("\n\n\n YOUR RECORD IS\n\n ");
+        printf("\nName=%s\nAdress=%s\nMobile_no=%ld\nE-mail=%s",p.name,p.address,p.mobile_no,p.mail);
+        getch();
+        system("cls");
+    }
+    fclose(f);
+    printf("\n Enter any key");
+    getch();
+    system("cls");
+    menu();
+}
+void searchrecord()
+{
+    struct person p;
+    FILE *f;
+    char name[20];
+    f=fopen("project","rb");
+    if(f==NULL)
+        {
+            printf("\n error in opening\a\a\a\a");
+            exit(1);
+        }
+        printf("\nEnter name of person to search\n");
+        got(name);
+        while(fread(&p,sizeof(p),1,f)==1)
+        {
+            if(strcmp(p.name,name)==0)
+                {
+                    printf("\n\tDetail Information About %s",name);
+                    printf("\nName:%s\naddress:%s\nMobile_no:%ld\nE-mail:%s",p.name,p.address,p.mobile_no,p.mail);
+                }
+                else
+                printf("file not found");
+        }
+        fclose(f);
+        printf("\n Enter any key");
+        getch();
+        system("cls");
+        menu();
+}
+void modifyrecord()
+{
+
+    FILE *f;
+    int flag=0;
+    struct person p,s;
+	char  name[20];
+	f=fopen("project","rb+");
+	if(f==NULL)
+		{
+            printf("CONTACT'S DATA NOT ADDED YET.");
+			exit(1);
+		}
+        else
+        {
+            system("cls");
+            printf("\nEnter CONTACT'S NAME TO MODIFY:\n");
+            got(name);
+            while(fread(&p,sizeof(p),1,f)==1)
+            {
+                if(strcmp(name,p.name)==0)
+                {
+                    printf("\n Enter name:");
+                    got(s.name);
+                    printf("\nEnter the address:");
+                    got(s.address);
+                    printf("\nEnter phone no:");
+                    scanf("%ld",&s.mobile_no);
+                    printf("\nEnter e-mail:");
+                    got(s.mail);
+                    fseek(f,-sizeof(p),SEEK_CUR);
+                    fwrite(&s,sizeof(p),1,f);
+                    flag=1;
+                    break;
+                }
+                fflush(stdin);
+            }
+            if(flag==1)
+            {
+                printf("\n your data id modified");
+
+            }
+            else
+            {
+                    printf("\n data is not found");
+
+            }
+            fclose(f);
+	}
+    printf("\n Enter any key");
+    getch();
+    system("cls");
+	menu();
+
+}
+void deleterecord()
+{
+    struct person p;
+    FILE *f,*ft;
+	int flag;
+	char name[20];
+	f=fopen("project","rb");
+	if(f==NULL)
+		{
+			printf("CONTACT'S DATA NOT ADDED YET.");
+		}
+        else
+        {
+            ft=fopen("temp","wb+");
+            if(ft==NULL)
+            printf("file opaning error");
+            else
+            {
+                printf("\nEnter CONTACT'S NAME:");
+                got(name);
+                fflush(stdin);
+                while(fread(&p,sizeof(p),1,f)==1)
+                {
+                    if(strcmp(p.name,name)!=0)
+                        fwrite(&p,sizeof(p),1,ft);
+                    if(strcmp(p.name,name)==0)
+                        flag=1;
+                }
+                fclose(f);
+                fclose(ft);
+                if(flag!=1)
+                {
+                    printf("NO CONACT'S RECORD TO DELETE.");
+                    remove("temp.txt");
+                }
+                else
+                {
+                    remove("project");
+                    rename("temp.txt","project");
+                    printf("RECORD DELETED SUCCESSFULLY.");
+
+                }
+            }
+        }
+        printf("\n Enter any key");
+        getch();
+        system("cls");
+        menu();
+}
